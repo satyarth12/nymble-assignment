@@ -1,17 +1,16 @@
+from re import T
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 import uuid
-
-USER = get_user_model()
 
 # Create your models here.
 
 
 class Store(models.Model):
     owner = models.ForeignKey(
-        USER, related_name="store_owner", on_delete=models.CASCADE)
+        User, related_name="store_owner", on_delete=models.CASCADE)
 
     name = models.CharField(_("Store Name"), primary_key=True, max_length=250)
     created_at = models.DateField(
@@ -52,21 +51,30 @@ class Items(models.Model):
     def __str__(self):
         return f"{self.store} - {self.name}"
 
+    @staticmethod
+    def reduce_quantity(instance):
+        instance.quantity = instance.quantity-1
+        return instance.save()
+
 
 class TransactionBill(models.Model):
     id = models.UUIDField(primary_key=True,
                           default=uuid.uuid4,
                           editable=False)
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     recipient = models.ForeignKey(
-        USER, related_name="transaction_recipient", on_delete=models.DO_NOTHING)
+        User, related_name="transaction_recipient", on_delete=models.DO_NOTHING, null=True)
 
+    store = models.ForeignKey(
+        Store, related_name='transaction_store', on_delete=models.DO_NOTHING, null=True)
     items = models.ManyToManyField(
         Items, related_name="transaction_items")
     cart = models.JSONField(null=True)
     total = models.FloatField(
         _("Total Transaction Amount"), default=0)
+
+    placed = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'main_app'
@@ -74,4 +82,4 @@ class TransactionBill(models.Model):
         verbose_name_plural = 'Transaction Bills'
 
     def __str__(self):
-        return f"{self.recipient.username}"
+        return f"{self.id}"
