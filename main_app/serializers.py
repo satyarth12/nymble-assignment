@@ -1,3 +1,4 @@
+from multiprocessing import context
 from unicodedata import name
 from rest_framework import serializers
 from django.contrib.auth.models import User
@@ -6,23 +7,33 @@ from .models import ItemCategory, Store, Items, TransactionBill
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email"]
+        read_only_fields = ["id", "username", "email"]
+
+
+class SalesSerializer(serializers.Serializer):
+    store_info = serializers.SerializerMethodField(read_only=True)
     store_meta_details = serializers.SerializerMethodField(read_only=True)
     items_meta_details = serializers.SerializerMethodField(read_only=True)
     food_category_meta_details = serializers.SerializerMethodField(
         read_only=True)
 
     class Meta:
-        model = User
-        fields = ["id", "username", "email",
-                  "store_meta_details", "items_meta_details", "food_category_meta_details"]
-        read_only_fields = ["id", "username", "email",
-                            "store_meta_details", "items_meta_details", "food_category_meta_details"]
+        fields = TransactionBill
+        fields = ("store_info", "store_meta_details", "items_meta_details",
+                  "food_category_meta_details")
+
+    def get_store_info(self, obj):
+        return StoreSerializer(obj.store_owner).data
 
     def get_store_meta_details(self, obj):
         store = obj.store_owner
 
         all_store_transactions = TransactionBill.objects.filter(
-            store=store, placed=True)  # .count()
+            store=store, placed=True, timestamp__date__range=[self.context.get("from_date"), self.context.get("to_date")])  # .count()
 
         total_item_quant_sold = 0
         total_sales_amt = 0

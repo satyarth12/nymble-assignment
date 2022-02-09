@@ -1,8 +1,9 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 
+from .filters import SalesFilter
 from .serializers import *
 from .models import *
 
@@ -10,26 +11,38 @@ from .views_service import TransferBillService
 from .util import TransactionViewsObject
 
 
-class UserView(viewsets.ViewSet):
+class UserView(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_queryset(self, request):
         return self.serializer_class(User.objects.get(id=request.user.id)).data
 
-    @action(detail=True, methods=["GET"])
-    def view_overall_store_sales(self, request, pk):
-        return Response(self.serializer_class(User.objects.get(id=pk)).data)
+
+class StoreSalesView(generics.GenericAPIView):
+    serializer_class = SalesSerializer
+    # filter_class = SalesFilter
+
+    def get(self, request, pk):
+        """
+        pk -> user_id
+        """
+        # queries
+        from_date = request.GET.get("from_date", None)
+        to_date = request.GET.get("to_date", None)
+        context = {}
+        if from_date and to_date:
+            context = {
+                "from_date": from_date,
+                "to_date": to_date
+            }
+
+        return Response(self.serializer_class(User.objects.get(id=pk), context=context).data)
 
 
 class StoreView(viewsets.ModelViewSet):
     serializer_class = StoreSerializer
     queryset = Store.objects.all()
-
-    # @action(detail=True, methods=["PATCH"])
-    # def add_sales(self, request, pk):
-    #     """Add sales to the items associated with a particular store
-    #     """
-    #     data = request.data
+    filter_class = SalesFilter
 
 
 class ItemView(viewsets.ModelViewSet):
