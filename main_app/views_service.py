@@ -124,7 +124,7 @@ class TransferBillService:
         """Increase the item's quantity in the cart if already there
         else adds item in the cart
         """
-        transaction_instance = self.transaction.first()
+        transaction_instance = self.transaction
 
         # increase item quantity in the json cart if already present in the unplaced transaction
         if str(self.item) not in transaction_instance.cart.keys():
@@ -140,7 +140,7 @@ class TransferBillService:
         """Decrease/Deletes the item from the cart.
         If cart is empty the deletes the transaction.
         """
-        transaction_instance = self.transaction.first()
+        transaction_instance = self.transaction
 
         if str(self.item) in transaction_instance.cart.keys():
             result = self.decrease_delete_item(

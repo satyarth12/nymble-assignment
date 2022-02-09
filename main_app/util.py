@@ -16,7 +16,7 @@ class TransactionViewsObject:
             store = item.store
             # user = get_object_or_404(User, pk=user_id)
             transaction = TransactionBill.objects.filter(
-                recipient=user_id, store=store, placed=False)
+                recipient=user_id, store=store, placed=False).first()
 
             return transaction, item
 
@@ -34,5 +34,3 @@ TRANSACTION_REQUEST_BODY = openapi.Schema(
     },
     description='Item Id to which you want to add in cart'
 )
-
-# PLACE_ORDER_REQUEST_BODY =

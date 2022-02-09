@@ -15,6 +15,9 @@ class Store(models.Model):
         User, related_name="store_owner", on_delete=models.CASCADE)
 
     name = models.CharField(_("Store Name"), primary_key=True, max_length=250)
+
+    open_till = models.DateTimeField(
+        _("Store Closing Time"), default=None, blank=True, null=True)
     created_at = models.DateField(
         _("Store's operating day"), auto_now_add=True)
 
