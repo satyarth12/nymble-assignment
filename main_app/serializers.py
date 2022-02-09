@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 
 from .models import Store, Items, TransactionBill
 
-import concurrent.futures
-
 
 class StoreSerializer(serializers.ModelSerializer):
     owner = serializers.SerializerMethodField(read_only=True)
@@ -51,7 +49,7 @@ class TransactionBillSerializer(serializers.ModelSerializer):
         return recipient_details
 
     def get_items(self, obj):
-        items_serializer = ItemsSerializer(obj.items, many=True)
+        items_serializer = ItemsSerializer(obj.cart.keys(), many=True)
         return items_serializer.data
 
     def get_total_items(self, obj):

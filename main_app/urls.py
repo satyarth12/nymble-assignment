@@ -10,5 +10,6 @@ router.register(r'item', ItemView, basename='item')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('add_item/', TransactionBillView.as_view({'post': 'add_item'}))
+    path('create_update_bill/<str:operation>/',
+         TransactionBillView.as_view({'post': 'create_update_bill'})),
 ]

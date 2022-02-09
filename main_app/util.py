@@ -1,32 +1,19 @@
-import json
+from django.shortcuts import get_object_or_404
 
-from django.contrib.auth import get_user_model
-from .serializers import TransactionBillSerializer
-from .models import TransactionBill
+from .models import *
 
 
-class PlaceOrders:
-    def __init__(self, transaction, item, item_id, curr_user):
-        self.transaction = transaction
-        self.item = item
-        self.item_id = item_id
-        self.curr_user = curr_user
+class TransactionViewsObject:
 
-    def add(self):
-        if self.transaction.exists():
-            return
+    def get_item_transaction(self, item_id, user_id):
+        # pk = self.kwargs.get(self.lookup)
+        pk = item_id
+        if pk is not None:
 
-        # new_item = []
-        # self.item_count = 1
-        # new_item.append(self.item.name)
-        # new_item.append(self.item_count)
-        # new_item.append(self.item.cost)
+            item = get_object_or_404(Items, pk=pk)
+            store = item.store
+            user = get_object_or_404(User, pk=user_id)
+            transaction = TransactionBill.objects.filter(
+                recipient=user_id, store=store, placed=False)
 
-        # new_list = {self.item.id: new_item}
-
-        print(self.item)
-
-        instance = TransactionBill.objects.create(
-            recipient=self.curr_user, store=self.item.store, total=self.item.price)
-        instance.items.add(self.item)
-        return instance
+            return transaction, item, user

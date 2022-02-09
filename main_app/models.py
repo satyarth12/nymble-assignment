@@ -1,10 +1,10 @@
-from re import T
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 import uuid
 
+from .exceptions import ItemUnavailableError
 # Create your models here.
 
 
@@ -53,8 +53,10 @@ class Items(models.Model):
 
     @staticmethod
     def reduce_quantity(instance):
-        instance.quantity = instance.quantity-1
-        return instance.save()
+        if instance.quantity > 0:
+            instance.quantity = instance.quantity-1
+            return instance.save()
+        raise ItemUnavailableError
 
 
 class TransactionBill(models.Model):
@@ -68,9 +70,9 @@ class TransactionBill(models.Model):
 
     store = models.ForeignKey(
         Store, related_name='transaction_store', on_delete=models.DO_NOTHING, null=True)
-    items = models.ManyToManyField(
-        Items, related_name="transaction_items")
-    cart = models.JSONField(null=True)
+    # items = models.ManyToManyField(
+    #     Items, related_name="transaction_items")
+    cart = models.JSONField(null=True, default=dict)
     total = models.FloatField(
         _("Total Transaction Amount"), default=0)
 
