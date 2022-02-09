@@ -61,7 +61,7 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
             item_id=item_id, user_id=user.id)
 
         if not transaction and method_type == "create":
-            """creates a new transaction instance if create=True
+            """creates a new transaction instance
             """
             result = TransferBillService(
                 item=item, curr_user=user).create_transaction()
@@ -73,18 +73,22 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
             """Increases item's quantity / add an item in the pre existing transaction
             """
             if transaction.recipient == request.user:
-                result = TransferBillService(
-                    transaction=transaction, item=item, curr_user=user).add_increase_transaction()
-                return Response(self.serializer_class(result).data)
+                if not transaction.placed:
+                    result = TransferBillService(
+                        transaction=transaction, item=item, curr_user=user).add_increase_transaction()
+                    return Response(self.serializer_class(result).data)
+                return Response("Items are already placed", status=status.HTTP_208_ALREADY_REPORTED)
             return Response("Not Authorized to edit", status=status.HTTP_403_FORBIDDEN)
 
         elif transaction and method_type == "update_decrease":
             """Decreases item's quantity / remoces an item from the pre existing transaction
             """
             if transaction.recipient == request.user:
-                result = TransferBillService(
-                    transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
-                if result:
-                    return Response(result)
-                return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                if not transaction.placed:
+                    result = TransferBillService(
+                        transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
+                    if result:
+                        return Response(result)
+                    return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                return Response("Items are already placed", status=status.HTTP_208_ALREADY_REPORTED)
             return Response("Not Authorized to edit", status=status.HTTP_403_FORBIDDEN)

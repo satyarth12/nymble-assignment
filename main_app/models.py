@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 import uuid
+from django.utils import timezone
 
 from .exceptions import ItemUnavailableError
 # Create your models here.
@@ -94,11 +95,17 @@ class TransactionBill(models.Model):
         _("Total Transaction Amount"), default=0)
 
     placed = models.BooleanField(default=False)
+    placed_timestamp = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         app_label = 'main_app'
         verbose_name = 'Transaction Bill'
         verbose_name_plural = 'Transaction Bills'
+
+    def save(self, *args, **kwargs):
+        if self.placed:
+            self.placed_timestamp = timezone.now()
+        super(TransactionBill, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.id}"

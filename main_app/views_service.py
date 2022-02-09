@@ -19,7 +19,6 @@ class TransferBillService:
             key_ = str(item_instance)
 
             count = tb_instance.cart[key_][0] - 1
-            print(count)
 
             # if item's count is 0
             if count == 0:
@@ -37,6 +36,10 @@ class TransferBillService:
                 tb_instance.cart = new_cart
                 tb_instance.total = ini_total - item_cost
                 tb_instance.save()
+
+                # increasing item's quantity availability
+                Items.increase_quantity(instance=item_instance)
+
                 return 'Item Removed'
 
             # update the cart
@@ -47,6 +50,7 @@ class TransferBillService:
             tb_instance.cart[key_][2] = count*item_cost
             tb_instance.save()
 
+            # increasing item's quantity availability
             Items.increase_quantity(instance=item_instance)
 
             return "Decreased"
@@ -63,7 +67,7 @@ class TransferBillService:
             total_cart_cost = 0
             key_ = str(item_instance)
 
-            # updating an item already in cart
+            # updating an item already present in existing cart
             if operation == "increase_item":
                 count = tb_instance.cart[key_][0] + 1
                 total_item_cost_ = tb_instance.cart[key_][1] + \
@@ -75,7 +79,7 @@ class TransferBillService:
                 tb_instance.cart[key_][2] = total_item_cost_
                 total_cart_cost = tb_instance.total + item_instance.price
 
-            # adding an item in the cart
+            # adding an item in the existing cart
             elif operation == "add_item":
                 count = 1
                 tb_instance.cart[key_] = [
@@ -88,7 +92,7 @@ class TransferBillService:
             tb_instance.total = total_cart_cost
             tb_instance.save()
 
-            # updating Item instance
+            # updating Item instance's availability
             Items.reduce_quantity(instance=item_instance)
 
         return tb_instance
