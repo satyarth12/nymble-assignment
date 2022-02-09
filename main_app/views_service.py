@@ -29,6 +29,7 @@ class TransferBillService:
                 ini_total = tb_instance.total
                 item_cost = item_instance.price
 
+                # if cart is empty then delete the transaction
                 if bool(new_cart) == False:
                     tb_instance.delete()
                     return 'Transaction Deleted'
@@ -38,6 +39,7 @@ class TransferBillService:
                 tb_instance.save()
                 return 'Item Removed'
 
+            # update the cart
             ini_total = tb_instance.total
             item_cost = item_instance.price
             tb_instance.total = ini_total - item_cost
@@ -115,6 +117,9 @@ class TransferBillService:
             return e
 
     def add_increase_transaction(self):
+        """Increase the item's quantity in the cart if already there
+        else adds item in the cart
+        """
         transaction_instance = self.transaction.first()
 
         # increase item quantity in the json cart if already present in the unplaced transaction
@@ -128,6 +133,9 @@ class TransferBillService:
             return result
 
     def decrease_delete_transaction(self):
+        """Decrease/Deletes the item from the cart.
+        If cart is empty the deletes the transaction.
+        """
         transaction_instance = self.transaction.first()
 
         if str(self.item) in transaction_instance.cart.keys():

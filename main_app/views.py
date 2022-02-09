@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
 
-from .permission import IsItemOwnerOrReadOnly
+from .permission import IsItemOwnerOrReadOnly, IsStoreOwner
 from .serializers import *
 from .models import *
 
@@ -34,6 +34,7 @@ class StoreSalesView(generics.GenericAPIView):
 
 class StoreView(viewsets.ModelViewSet):
     serializer_class = StoreSerializer
+    permission_classes = [IsStoreOwner]
     queryset = Store.objects.all()
 
 
@@ -71,15 +72,19 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
         elif transaction and method_type == "update_increase":
             """Increases item's quantity / add an item in the pre existing transaction
             """
-            result = TransferBillService(
-                transaction=transaction, item=item, curr_user=user).add_increase_transaction()
-            return Response(self.serializer_class(result).data)
+            if transaction.recipient == request.user:
+                result = TransferBillService(
+                    transaction=transaction, item=item, curr_user=user).add_increase_transaction()
+                return Response(self.serializer_class(result).data)
+            return Response("Not Authorized to edit", status=status.HTTP_403_FORBIDDEN)
 
         elif transaction and method_type == "update_decrease":
             """Decreases item's quantity / remoces an item from the pre existing transaction
             """
-            result = TransferBillService(
-                transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
-            if result:
-                return Response(result)
-            return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            if transaction.recipient == request.user:
+                result = TransferBillService(
+                    transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
+                if result:
+                    return Response(result)
+                return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response("Not Authorized to edit", status=status.HTTP_403_FORBIDDEN)
