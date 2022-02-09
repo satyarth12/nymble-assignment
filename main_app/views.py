@@ -21,7 +21,7 @@ class UserView(viewsets.ModelViewSet):
 class StoreSalesView(generics.GenericAPIView):
     serializer_class = SalesSerializer
 
-    def get(self, request, pk):
+    def get(self, request):
         """
         pk -> user_id
         """
@@ -35,7 +35,7 @@ class StoreSalesView(generics.GenericAPIView):
         #         "to_date": to_date
         #     }
 
-        return Response(self.serializer_class(User.objects.get(id=pk), context=context).data)
+        return Response(self.serializer_class(User.objects.get(id=request.user.id)).data)
 
 
 class StoreView(viewsets.ModelViewSet):

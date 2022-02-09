@@ -70,6 +70,11 @@ class Items(models.Model):
             return instance.save()
         raise ItemUnavailableError
 
+    @staticmethod
+    def increase_quantity(instance):
+        instance.quantity = instance.quantity+1
+        return instance.save()
+
 
 class TransactionBill(models.Model):
     id = models.UUIDField(primary_key=True,

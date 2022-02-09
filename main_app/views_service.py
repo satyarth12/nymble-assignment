@@ -45,6 +45,8 @@ class TransferBillService:
             tb_instance.cart[key_][2] = count*item_cost
             tb_instance.save()
 
+            Items.increase_quantity(instance=item_instance)
+
             return "Decreased"
 
     @staticmethod
