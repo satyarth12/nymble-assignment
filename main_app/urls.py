@@ -11,12 +11,10 @@ router.register(r'item', ItemView, basename='item')
 urlpatterns = [
     path('', include(router.urls)),
 
-    path('store-meta-details/<int:pk>/',
+    path('store-sales-details/<int:pk>/',
          StoreSalesView.as_view()),
 
-    path('create_update_bill/<str:operation>/',
+    path('create-update-bill/',
          TransactionBillView.as_view({'post': 'create_update_bill'})),
 
-    # path('user/store-avg-sales/<int:pk>/',
-    #      UserView.as_view({"get": "avg_sales"})),
 ]

@@ -22,7 +22,6 @@ class SalesSerializer(serializers.Serializer):
         read_only=True)
 
     class Meta:
-        fields = TransactionBill
         fields = ("store_info", "store_meta_details", "items_meta_details",
                   "food_category_meta_details")
 
@@ -33,7 +32,7 @@ class SalesSerializer(serializers.Serializer):
         store = obj.store_owner
 
         all_store_transactions = TransactionBill.objects.filter(
-            store=store, placed=True, timestamp__date__range=[self.context.get("from_date"), self.context.get("to_date")])  # .count()
+            store=store, placed=True)  # .count()
 
         total_item_quant_sold = 0
         total_sales_amt = 0
@@ -50,6 +49,7 @@ class SalesSerializer(serializers.Serializer):
 
     def get_items_meta_details(self, obj):
         items = obj.store_owner.item_store.all()
+        print(items)
         sub_result = {}
         for item in items:
             sub_result[str(item.name)] = item.transaction_items.count()
@@ -81,7 +81,6 @@ class StoreSerializer(serializers.ModelSerializer):
 
 class ItemsSerializer(serializers.ModelSerializer):
     store = serializers.SerializerMethodField(read_only=True)
-    quantity_sold = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Items
@@ -90,9 +89,6 @@ class ItemsSerializer(serializers.ModelSerializer):
     def get_store(self, obj):
         store_serializer = StoreSerializer(obj.store, many=False)
         return store_serializer.data
-
-    def get_quantity_sold(self, obj):
-        pass
 
 
 class TransactionBillSerializer(serializers.ModelSerializer):

@@ -12,8 +12,8 @@ class TransactionViewsObject:
 
             item = get_object_or_404(Items, pk=pk)
             store = item.store
-            user = get_object_or_404(User, pk=user_id)
+            # user = get_object_or_404(User, pk=user_id)
             transaction = TransactionBill.objects.filter(
                 recipient=user_id, store=store, placed=False)
 
-            return transaction, item, user
+            return transaction, item

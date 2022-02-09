@@ -48,10 +48,12 @@ class Items(models.Model):
         Store, on_delete=models.DO_NOTHING, related_name="item_store")
     name = models.CharField(_("Item Name"), blank=True, max_length=250)
     code = models.CharField(_("Item Code"), blank=True, max_length=50)
-    price = models.FloatField(_("Item Price"), blank=True)
+    price = models.FloatField(_("Item Price"), blank=True, default=0)
     quantity = models.IntegerField(_("Available Quantity"), default=50)
     type = models.ManyToManyField(
-        ItemCategory, related_name="item_in_category")
+        ItemCategory, related_name="item_in_category", blank=True)
+    sale_period = models.DateTimeField(_("Sale Period"), null=True, blank=True)
+    sale = models.BooleanField(default=False)
 
     class Meta:
         app_label = 'main_app'

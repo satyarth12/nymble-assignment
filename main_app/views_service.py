@@ -14,6 +14,40 @@ class TransferBillService:
         self.curr_user = curr_user  # current logged in user
 
     @staticmethod
+    def decrease_delete_item(tb_instance, item_instance):
+        with transaction.atomic():
+            key_ = str(item_instance)
+
+            count = tb_instance.cart[key_][0] - 1
+            print(count)
+
+            # if item's count is 0
+            if count == 0:
+                tb_instance.cart.pop(key_)
+                tb_instance.items.remove(item_instance)
+                new_cart = tb_instance.cart
+                ini_total = tb_instance.total
+                item_cost = item_instance.price
+
+                if bool(new_cart) == False:
+                    tb_instance.delete()
+                    return 'Transaction Deleted'
+
+                tb_instance.cart = new_cart
+                tb_instance.total = ini_total - item_cost
+                tb_instance.save()
+                return 'Item Removed'
+
+            ini_total = tb_instance.total
+            item_cost = item_instance.price
+            tb_instance.total = ini_total - item_cost
+            tb_instance.cart[key_][0] = count
+            tb_instance.cart[key_][2] = count*item_cost
+            tb_instance.save()
+
+            return "Decreased"
+
+    @staticmethod
     def increase_add_item(operation: str, tb_instance, item_instance):
         """Increase Item Quantity Or Add new item in the json cart
         # {"item_instance": [item_count->int,
@@ -27,34 +61,26 @@ class TransferBillService:
 
             # updating an item already in cart
             if operation == "increase_item":
-
-                print("INCREASE")
-                cart_obj = tb_instance.cart[key_]
                 count = tb_instance.cart[key_][0] + 1
-                item_cost_ = tb_instance.cart[key_][1] + \
+                total_item_cost_ = tb_instance.cart[key_][1] + \
                     tb_instance.cart[key_][2]
 
                 tb_instance.cart[key_][0] = count  # update item_count + 1
 
                 # update item's total cost in cart
-
-                tb_instance.cart[key_][2] = item_cost_
-                print(tb_instance.cart[key_][2])
-                for key, value in tb_instance.cart.items():
-                    total_cart_cost += tb_instance.cart[key][2]
+                tb_instance.cart[key_][2] = total_item_cost_
+                total_cart_cost = tb_instance.total + item_instance.price
 
             # adding an item in the cart
             elif operation == "add_item":
-                print("ADD")
                 count = 1
                 tb_instance.cart[key_] = [
                     count, item_instance.price, item_instance.price]
+                tb_instance.items.add(item_instance)
 
-                for key, value in tb_instance.cart.items():
-                    print(value)
-                    total_cart_cost += tb_instance.cart[key][2]
+                total_cart_cost = tb_instance.total + item_instance.price
 
-            print(total_cart_cost)
+            # updating transaction's total cost
             tb_instance.total = total_cart_cost
             tb_instance.save()
 
@@ -80,22 +106,30 @@ class TransferBillService:
                     store=self.item.store,
                     cart=cart_,
                     total=total_)
+                instance.items.add(self.item)
                 Items.reduce_quantity(instance=self.item)
                 return instance
         except Exception as e:
             return e
 
-    def update_transaction(self):
+    def add_increase_transaction(self):
         transaction_instance = self.transaction.first()
 
         # increase item quantity in the json cart if already present in the unplaced transaction
         if str(self.item) not in transaction_instance.cart.keys():
-            print("sdhbfhdbfk")
             result = self.increase_add_item(
                 operation="add_item", tb_instance=transaction_instance, item_instance=self.item)
             return result
         else:
-            print("jkdbfkhj")
             result = self.increase_add_item("increase_item", transaction_instance,
                                             self.item)
             return result
+
+    def decrease_delete_transaction(self):
+        transaction_instance = self.transaction.first()
+
+        if str(self.item) in transaction_instance.cart.keys():
+            result = self.decrease_delete_item(
+                tb_instance=transaction_instance, item_instance=self.item)
+            return result
+        return False
