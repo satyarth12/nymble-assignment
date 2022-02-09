@@ -1,3 +1,4 @@
+from random import choice
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
@@ -9,7 +10,7 @@ from .exceptions import ItemUnavailableError
 
 
 class Store(models.Model):
-    owner = models.ForeignKey(
+    owner = models.OneToOneField(
         User, related_name="store_owner", on_delete=models.CASCADE)
 
     name = models.CharField(_("Store Name"), primary_key=True, max_length=250)
@@ -25,13 +26,23 @@ class Store(models.Model):
         return self.name
 
 
-class Items(models.Model):
-
+class ItemCategory(models.Model):
     class Types(models.TextChoices):
         """Item type choices
         """
         PIZZA = "PIZZA", "pizza"
         BURGER = "BURGER", "burger"
+
+    name = models.CharField(_("Item Category Name"),
+                            primary_key=True,
+                            max_length=250,
+                            choices=Types.choices)
+
+    def __str__(self):
+        return self.name
+
+
+class Items(models.Model):
 
     store = models.ForeignKey(
         Store, on_delete=models.DO_NOTHING, related_name="item_store")
@@ -39,9 +50,8 @@ class Items(models.Model):
     code = models.CharField(_("Item Code"), blank=True, max_length=50)
     price = models.FloatField(_("Item Price"), blank=True)
     quantity = models.IntegerField(_("Available Quantity"), default=50)
-    type = models.CharField(
-        _("Item Type"), max_length=50, choices=Types.choices,
-    )
+    type = models.ManyToManyField(
+        ItemCategory, related_name="item_in_category")
 
     class Meta:
         app_label = 'main_app'
@@ -70,8 +80,8 @@ class TransactionBill(models.Model):
 
     store = models.ForeignKey(
         Store, related_name='transaction_store', on_delete=models.DO_NOTHING, null=True)
-    # items = models.ManyToManyField(
-    #     Items, related_name="transaction_items")
+    items = models.ManyToManyField(
+        Items, related_name="transaction_items")
     cart = models.JSONField(null=True, default=dict)
     total = models.FloatField(
         _("Total Transaction Amount"), default=0)

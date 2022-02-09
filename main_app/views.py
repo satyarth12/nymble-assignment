@@ -1,18 +1,35 @@
-from re import I
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
+
 
 from .serializers import *
 from .models import *
 
-from concurrent.futures import ThreadPoolExecutor
 from .views_service import TransferBillService
 from .util import TransactionViewsObject
+
+
+class UserView(viewsets.ViewSet):
+    serializer_class = UserSerializer
+
+    def get_queryset(self, request):
+        return self.serializer_class(User.objects.get(id=request.user.id)).data
+
+    @action(detail=True, methods=["GET"])
+    def view_overall_store_sales(self, request, pk):
+        return Response(self.serializer_class(User.objects.get(id=pk)).data)
 
 
 class StoreView(viewsets.ModelViewSet):
     serializer_class = StoreSerializer
     queryset = Store.objects.all()
+
+    # @action(detail=True, methods=["PATCH"])
+    # def add_sales(self, request, pk):
+    #     """Add sales to the items associated with a particular store
+    #     """
+    #     data = request.data
 
 
 class ItemView(viewsets.ModelViewSet):

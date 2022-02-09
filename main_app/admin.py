@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Store)
 admin.site.register(TransactionBill)
 admin.site.register(Items)
+admin.site.register(ItemCategory)
