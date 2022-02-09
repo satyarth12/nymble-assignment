@@ -13,22 +13,12 @@
   - `pip install poetry`
   - `poetry install` : This will install all the required dependencies from .toml file.
 
-- **Sorting the raw csv file & storing the data in redis server**
+- **Running the Django server**
 
-  - `python redis_storage.py`
-  - _**Note:**_ _On line 8, enter the unsorted raw csv file name._
+  - `python manage.py makemigrations`
+  - `python manage.py migrate`
+  - `python manage.py runserver`
 
-- **Running the FastApi server**
-
-  - `uvicorn main:app --reload`
-
-- **To get the device information**
-
-  - `http://127.0.0.1:8000/device/{device_id}`
-  - For extra filtration: `http://127.0.0.1:8000/device/{device_id}q={time_stamp}`
-
-- **Redis Commands for redis-cli**
-
-  - `keys *` for getting all the keys in the redis
-  - `flushall` for deleting the redis storage
-
+- **Swagger Documentation**
+  - For proper understaning of API's usage: `http://127.0.0.1:8000/`
+  - \***\*NOTE: To use the APIs, backend requires user to be authenticated. So, create an auth token from admin pannel for the access.\*\***

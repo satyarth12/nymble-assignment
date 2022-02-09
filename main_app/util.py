@@ -29,8 +29,9 @@ TRANSACTION_REQUEST_BODY = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     required=['item_id', 'method_type'],
     properties={
-        'item_id': openapi.Schema(type=openapi.TYPE_INTEGER),
-        'method_type': openapi.Schema(type=openapi.TYPE_STRING)
+        'item_id': openapi.Schema(type=openapi.TYPE_INTEGER, description='Item Id to which you want to add in cart'),
+        'method_type': openapi.Schema(type=openapi.TYPE_STRING, description='''method_type: create, to create a transaction instance
+                                                                method_type: update_increase, to increase item's quantity / add an item in an existing transaction
+                                                                method_type: update_decrease, to decrease item's quantity / removes an item from an existing transaction''')
     },
-    description='Item Id to which you want to add in cart'
 )
