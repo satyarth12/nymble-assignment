@@ -1,4 +1,5 @@
 
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 
@@ -10,7 +11,7 @@ from .serializers import *
 from .models import *
 
 from .views_service import TransferBillService
-from .util import TransactionViewsObject, TRANSACTION_REQUEST_BODY
+from .util import TransactionViewsObject, TRANSACTION_REQUEST_BODY, PLACED_QUERY_PARAM
 
 
 class UserView(viewsets.ModelViewSet):
@@ -32,6 +33,21 @@ class StoreSalesView(generics.GenericAPIView):
             return Response(e)
 
 
+class AvgSalesDate(generics.GenericAPIView):
+
+    def get(self, request):
+        store = request.user.store_owner
+        print(store)
+        from_date = request.data.get("from_date", None)
+        to_date = request.data.get("to_date", None)
+
+        store_transactions = TransactionBill.objects.select_related(
+            "store").filter(store=store, placed_timestamp__date__range=[from_date, to_date])
+
+        print(store_transactions)
+        return Response(TransactionBillSerializer(store_transactions, many=True).data)
+
+
 class StoreView(viewsets.ModelViewSet):
     serializer_class = StoreSerializer
     permission_classes = [IsStoreOwner]
@@ -47,6 +63,18 @@ class ItemView(viewsets.ModelViewSet):
 class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
     serializer_class = TransactionBillSerializer
     queryset = TransactionBill.objects.all()
+
+    @swagger_auto_schema(manual_parameters=[PLACED_QUERY_PARAM])
+    def get_my_transactions(self, request):
+        """Gives the Transactions list made by current logged in user
+        """
+        user = self.request.user
+        # without capitalize(), django.core.exceptions.ValidationError: ['“false” value must be either True or False.']
+        placed_ = request.GET.get('placed').capitalize()
+
+        transactions = TransactionBill.objects.select_related(
+            "recipient").filter(recipient=user, placed=placed_)
+        return Response(self.serializer_class(transactions, many=True).data)
 
     @swagger_auto_schema(request_body=TRANSACTION_REQUEST_BODY)
     def create_update_bill(self, request, *args, **kwargs):
@@ -92,3 +120,14 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
                     return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
                 return Response("Items are already placed", status=status.HTTP_208_ALREADY_REPORTED)
             return Response("Not Authorized to edit", status=status.HTTP_403_FORBIDDEN)
+
+    # @swagger_auto_schema()
+    def place_order(self, request, transaction_id):
+        instance = get_object_or_404(TransactionBill, id=transaction_id)
+
+        if instance.recipient == request.user:
+            if not instance.placed:
+                instance.placed = True
+                instance.save()
+            return Response("Items placed successfully", status=status.HTTP_200_OK)
+        return Response("Not Authorized", status=status.HTTP_403_FORBIDDEN)

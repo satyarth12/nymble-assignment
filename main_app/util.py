@@ -21,6 +21,10 @@ class TransactionViewsObject:
             return transaction, item
 
 
+PLACED_QUERY_PARAM = openapi.Parameter(
+    'placed', openapi.IN_QUERY, description="Placed boolean parameter", type=openapi.TYPE_BOOLEAN)
+
+
 TRANSACTION_REQUEST_BODY = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     required=['item_id', 'method_type'],
@@ -30,3 +34,5 @@ TRANSACTION_REQUEST_BODY = openapi.Schema(
     },
     description='Item Id to which you want to add in cart'
 )
+
+# PLACE_ORDER_REQUEST_BODY =

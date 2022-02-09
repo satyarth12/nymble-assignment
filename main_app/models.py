@@ -81,7 +81,6 @@ class TransactionBill(models.Model):
     id = models.UUIDField(primary_key=True,
                           default=uuid.uuid4,
                           editable=False)
-    timestamp = models.DateTimeField(auto_now_add=True)
 
     recipient = models.ForeignKey(
         User, related_name="transaction_recipient", on_delete=models.DO_NOTHING, null=True)
@@ -95,6 +94,7 @@ class TransactionBill(models.Model):
         _("Total Transaction Amount"), default=0)
 
     placed = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
     placed_timestamp = models.DateTimeField(blank=True, null=True)
 
     class Meta:
@@ -103,8 +103,14 @@ class TransactionBill(models.Model):
         verbose_name_plural = 'Transaction Bills'
 
     def save(self, *args, **kwargs):
-        if self.placed:
-            self.placed_timestamp = timezone.now()
+        if not self.id:
+            if self.placed:
+                self.placed_timestamp = timezone.now()
+        else:
+            if not self.placed:
+                self.placed_timestamp = None
+            else:
+                self.placed_timestamp = timezone.now()
         super(TransactionBill, self).save(*args, **kwargs)
 
     def __str__(self):
