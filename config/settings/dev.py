@@ -20,3 +20,14 @@ DATABASES = {
 # Cors Settings
 # If True, all origins will be allowed
 CORS_ALLOW_ALL_ORIGINS = ENV_INFO_.getboolean("CORS_ALLOW_ALL")
+
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}

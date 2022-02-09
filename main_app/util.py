@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404
 
 from .models import *
 
+from drf_yasg import openapi
+
 
 class TransactionViewsObject:
 
@@ -17,3 +19,14 @@ class TransactionViewsObject:
                 recipient=user_id, store=store, placed=False)
 
             return transaction, item
+
+
+TRANSACTION_REQUEST_BODY = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=['item_id', 'method_type'],
+    properties={
+        'item_id': openapi.Schema(type=openapi.TYPE_INTEGER),
+        'method_type': openapi.Schema(type=openapi.TYPE_STRING)
+    },
+    description='Item Id to which you want to add in cart'
+)

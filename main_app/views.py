@@ -2,13 +2,15 @@
 from rest_framework import viewsets, status, generics
 from rest_framework.response import Response
 
+from drf_yasg.utils import swagger_auto_schema
 
-from .permission import IsItemOwnerOrReadOnly, IsTransactionBillOwner
+
+from .permission import IsItemOwnerOrReadOnly
 from .serializers import *
 from .models import *
 
 from .views_service import TransferBillService
-from .util import TransactionViewsObject
+from .util import TransactionViewsObject, TRANSACTION_REQUEST_BODY
 
 
 class UserView(viewsets.ModelViewSet):
@@ -22,20 +24,12 @@ class StoreSalesView(generics.GenericAPIView):
     serializer_class = SalesSerializer
 
     def get(self, request):
+        """fetch the store-meta-details of the current user's store
         """
-        pk -> user_id
-        """
-        # # queries
-        # from_date = request.GET.get("from_date", None)
-        # to_date = request.GET.get("to_date", None)
-        # context = {}
-        # if from_date and to_date:
-        #     context = {
-        #         "from_date": from_date,
-        #         "to_date": to_date
-        #     }
-
-        return Response(self.serializer_class(User.objects.get(id=request.user.id)).data)
+        try:
+            return Response(self.serializer_class(User.objects.get(id=request.user.id)).data)
+        except Exception as e:
+            return Response(e)
 
 
 class StoreView(viewsets.ModelViewSet):
@@ -53,31 +47,39 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
     serializer_class = TransactionBillSerializer
     queryset = TransactionBill.objects.all()
 
+    @swagger_auto_schema(request_body=TRANSACTION_REQUEST_BODY)
     def create_update_bill(self, request, *args, **kwargs):
         """POST REQUEST
         """
         data = request.data
         item_id = data.get("item_id")
+        method_type = data.get("method_type", None)
         user = self.request.user
 
         transaction, item = self.get_item_transaction(
             item_id=item_id, user_id=user.id)
 
-        if not transaction and data.get("create"):
+        if not transaction and method_type == "create":
+            """creates a new transaction instance if create=True
+            """
             result = TransferBillService(
                 item=item, curr_user=user).create_transaction()
             if type(result).__name__ == "TransactionBill":
                 return Response(self.serializer_class(result).data, status=status.HTTP_201_CREATED)
             return Response("Item Unavailable", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-        elif data.get("add_increase"):
-            func = TransferBillService(
+        elif transaction and method_type == "update_increase":
+            """Increases item's quantity / add an item in the pre existing transaction
+            """
+            result = TransferBillService(
                 transaction=transaction, item=item, curr_user=user).add_increase_transaction()
-            return Response("UPDATED")
+            return Response(self.serializer_class(result).data)
 
-        elif data.get("decrease_delete"):
-            func = TransferBillService(
+        elif transaction and method_type == "update_decrease":
+            """Decreases item's quantity / remoces an item from the pre existing transaction
+            """
+            result = TransferBillService(
                 transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
-            if func:
-                return Response(func)
+            if result:
+                return Response(result)
             return Response("Item not in cart", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
