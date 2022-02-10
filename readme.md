@@ -13,6 +13,11 @@
   - `pip install poetry`
   - `poetry install` : This will install all the required dependencies from .toml file.
 
+- **Creating fake Data**
+
+  - `python manage.py main_app_data` This will create five subsequent rows in every Table
+  - Superuser credentials, after running above command: ****username: admin, password: admin@123****
+
 - **Running the Django server**
 
   - `python manage.py makemigrations`

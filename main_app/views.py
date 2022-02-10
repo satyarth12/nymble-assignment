@@ -27,10 +27,10 @@ class StoreSalesView(generics.GenericAPIView):
     def get(self, request):
         """fetch the store-meta-details of the current user's store
         """
-        try:
-            return Response(self.serializer_class(User.objects.get(id=request.user.id)).data)
-        except Exception as e:
-            return Response(e)
+        user = request.user
+        if Store.objects.filter(owner=user).exists():
+            return Response(self.serializer_class(User.objects.get(id=user.id)).data)
+        return Response("You have no store registered with you. Create one please", status=status.HTTP_404_NOT_FOUND)
 
 
 class AvgSalesDate(generics.GenericAPIView):

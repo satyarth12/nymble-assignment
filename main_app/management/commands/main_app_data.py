@@ -35,7 +35,8 @@ class Command(BaseCommand):
                 name="PIZZA"), ItemCategory(name="BURGER")]
             ItemCategory.objects.bulk_create(item_category)
 
-            print(item_category)
+            super_user = User.objects.create(
+                username="admin", password="admin@123", email="admin@dev.com", is_superuser=True, is_staff=True)
 
             for i in range(5):
                 user = user_data(fake_=fake)

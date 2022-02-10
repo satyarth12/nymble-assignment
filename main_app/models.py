@@ -49,13 +49,13 @@ class ItemCategory(models.Model):
 class Items(models.Model):
 
     store = models.ForeignKey(
-        Store, on_delete=models.DO_NOTHING, related_name="item_store")
+        Store, on_delete=models.CASCADE, related_name="item_store")
     name = models.CharField(_("Item Name"), blank=True, max_length=250)
     code = models.CharField(_("Item Code"), blank=True, max_length=50)
     price = models.FloatField(_("Item Price"), blank=True, default=0)
     quantity = models.IntegerField(_("Available Quantity"), default=50)
     type = models.ForeignKey(
-        ItemCategory, related_name="item_in_category", on_delete=models.DO_NOTHING, null=True)
+        ItemCategory, related_name="item_in_category", on_delete=models.CASCADE, null=True)
     sale_period = models.DateTimeField(_("Sale Period"), null=True, blank=True)
     sale = models.BooleanField(default=False)
 
@@ -86,7 +86,7 @@ class TransactionBill(models.Model):
                           editable=False)
 
     recipient = models.ForeignKey(
-        User, related_name="transaction_recipient", on_delete=models.DO_NOTHING, null=True)
+        User, related_name="transaction_recipient", on_delete=models.CASCADE, null=True)
 
     store = models.ForeignKey(
         Store, related_name='transaction_store', on_delete=models.DO_NOTHING, null=True)
