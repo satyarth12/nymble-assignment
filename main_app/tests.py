@@ -33,6 +33,8 @@ class AccountTests(APITestCase):
         self.item_category_url = "http://127.0.0.1:8000/app/item-category/"
 
     def test_token_creation(self):
+        """To test the login endpoint for user
+        """
         url = reverse('main_app:api-token-auth')
         data = {
             "username": "satyarth",
@@ -43,6 +45,8 @@ class AccountTests(APITestCase):
                          status.HTTP_200_OK)
 
     def test_creating_store(self):
+        """To test the create endpoint for store object
+        """
         self.api_client.credentials(HTTP_AUTHORIZATION=self.auth_header)
 
         self.store_response = self.api_client.post(
@@ -52,6 +56,8 @@ class AccountTests(APITestCase):
                          status.HTTP_201_CREATED)
 
     def test_creating_item_category(self):
+        """To test the create endpoint for Item Category object
+        """
         self.api_client.credentials(HTTP_AUTHORIZATION=self.auth_header)
         self.item_category_response = self.api_client.post(
             self.item_category_url, data=self.item_category_data, format='json')
@@ -60,6 +66,8 @@ class AccountTests(APITestCase):
                          status.HTTP_201_CREATED)
 
     def test_creating_item(self):
+        """To test the create endpoint for Item object
+        """
         store_data = {"owner": self.user, "name": "new store",
                       "open_till": fake.future_datetime()}
         store = Store.objects.create(**store_data)
