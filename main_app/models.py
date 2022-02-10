@@ -54,8 +54,8 @@ class Items(models.Model):
     code = models.CharField(_("Item Code"), blank=True, max_length=50)
     price = models.FloatField(_("Item Price"), blank=True, default=0)
     quantity = models.IntegerField(_("Available Quantity"), default=50)
-    type = models.ManyToManyField(
-        ItemCategory, related_name="item_in_category", blank=True)
+    type = models.ForeignKey(
+        ItemCategory, related_name="item_in_category", on_delete=models.DO_NOTHING, null=True)
     sale_period = models.DateTimeField(_("Sale Period"), null=True, blank=True)
     sale = models.BooleanField(default=False)
 

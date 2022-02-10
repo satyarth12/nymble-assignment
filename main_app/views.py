@@ -86,10 +86,11 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
         method_type = data.get("method_type", None)
         user = self.request.user
 
+        # getting valid transaction and item instances, if present, for further validation.
         transaction, item = self.get_item_transaction(
             item_id=item_id, user_id=user.id)
 
-        if timezone.now() < item.store.open_till:
+        if timezone.now() < item.store.open_till:  # if store closing time hasn't exceeded
 
             if not transaction and method_type == "create":
                 """creates a new transaction instance
@@ -104,7 +105,7 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
                 """Increases item's quantity / add an item in the pre existing transaction
                 """
                 if transaction.recipient == request.user:
-                    if not transaction.placed:
+                    if not transaction.placed:  # placed transactions are not allowed to be edited
                         result = TransferBillService(
                             transaction=transaction, item=item, curr_user=user).add_increase_transaction()
                         return Response(self.serializer_class(result).data)
@@ -115,7 +116,7 @@ class TransactionBillView(TransactionViewsObject, viewsets.ViewSet):
                 """Decreases item's quantity / remoces an item from the pre existing transaction
                 """
                 if transaction.recipient == request.user:
-                    if not transaction.placed:
+                    if not transaction.placed:  # placed transactions are not allowed to be edited
                         result = TransferBillService(
                             transaction=transaction, item=item, curr_user=user).decrease_delete_transaction()
                         if result:

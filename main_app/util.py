@@ -8,13 +8,10 @@ from drf_yasg import openapi
 class TransactionViewsObject:
 
     def get_item_transaction(self, item_id, user_id):
-        # pk = self.kwargs.get(self.lookup)
-        pk = item_id
-        if pk is not None:
+        if item_id is not None:
 
-            item = get_object_or_404(Items, pk=pk)
+            item = get_object_or_404(Items, pk=item_id)
             store = item.store
-            # user = get_object_or_404(User, pk=user_id)
             transaction = TransactionBill.objects.filter(
                 recipient=user_id, store=store, placed=False).first()
 

@@ -41,25 +41,36 @@ class SalesSerializer(serializers.Serializer):
             total_sales_amt += float(ins.total)
 
         return{
-            "store_name": str(store),
             "total_transactions": all_store_transactions.count(),
             "total_quantity_items_sold": total_item_quant_sold,
             "total_sales_amount": total_sales_amt
         }
 
     def get_items_meta_details(self, obj):
+        """Store's individual Item's Sale
+        """
         items = obj.store_owner.item_store.all()
-        print(items)
         sub_result = {}
         for item in items:
             sub_result[str(item.name)] = item.transaction_items.count()
         return sub_result
 
     def get_food_category_meta_details(self, obj):
-        categories = ItemCategory.objects.all()
+        """Sale in each category
+        """
+        store = obj.store_owner
+
+        transactions = TransactionBill.objects.filter(
+            placed=True, store=store)
+
         result = {}
-        for cat in categories:
-            result[str(cat.name)] = cat.item_in_category.count()
+        for trans in transactions:
+            for i in trans.items.all():
+                if i.type.name in result:
+                    result[i.type.name] = result[i.type.name] + 1
+                else:
+                    result[i.type.name] = 1
+
         return result
 
 
