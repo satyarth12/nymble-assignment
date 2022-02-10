@@ -75,31 +75,37 @@ class SalesSerializer(serializers.Serializer):
 
 
 class StoreSerializer(serializers.ModelSerializer):
-    owner = serializers.SerializerMethodField(read_only=True)
+    # owner = serializers.SerializerMethodField()
 
     class Meta:
         model = Store
         fields = '__all__'
 
-    def get_owner(self, obj):
-        owner = obj.owner
-        owner_details = {
-            'id': str(owner.id),
-            'username': str(owner.username)
-        }
-        return owner_details
+    # def get_owner(self, obj):
+    #     owner = obj.owner
+    #     owner_details = {
+    #         'id': str(owner.id),
+    #         'username': str(owner.username)
+    #     }
+    #     return owner_details
+
+
+class ItemCategorySeriaziler(serializers.ModelSerializer):
+    class Meta:
+        model = ItemCategory
+        fields = "__all__"
 
 
 class ItemsSerializer(serializers.ModelSerializer):
-    store = serializers.SerializerMethodField(read_only=True)
+    # store = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Items
         fields = '__all__'
 
-    def get_store(self, obj):
-        store_serializer = StoreSerializer(obj.store, many=False)
-        return store_serializer.data
+    # def get_store(self, obj):
+    #     store_serializer = StoreSerializer(obj.store, many=False)
+    #     return store_serializer.data
 
 
 class TransactionBillSerializer(serializers.ModelSerializer):

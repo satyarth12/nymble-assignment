@@ -56,6 +56,12 @@ class StoreView(viewsets.ModelViewSet):
     queryset = Store.objects.all()
 
 
+class ItemCategoryView(viewsets.ModelViewSet):
+    serializer_class = ItemCategorySeriaziler
+    queryset = ItemCategory.objects.all()
+    htt_method_names = ['post', 'get']
+
+
 class ItemView(viewsets.ModelViewSet):
     serializer_class = ItemsSerializer
     permission_classes = [IsItemOwnerOrReadOnly]

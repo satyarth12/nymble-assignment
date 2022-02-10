@@ -13,6 +13,7 @@ drf-yasg = "^1.20.0"
 djangorestframework = "^3.13.1"
 django-filter = "^21.1"
 Faker = "^12.1.0"
+factory-boy = "^3.2.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
