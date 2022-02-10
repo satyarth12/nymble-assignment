@@ -18,6 +18,10 @@
   - `python manage.py makemigrations`
   - `python manage.py migrate`
 
+- **Running API Tests**
+
+  - `python manage.py test`
+
 - **Creating fake Data**
 
   - `python manage.py main_app_data` This will create five subsequent rows (dummy data) in every Table
