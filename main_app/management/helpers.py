@@ -1,3 +1,4 @@
+import json
 import random
 from faker import Faker
 import itertools
@@ -24,21 +25,28 @@ def user_data(fake_):
     email = fake_.email()
     password = "User@123"
 
-    user = User.objects.create(
+    user = User.objects.create_user(
         username=username, email=email, password=password)
-    print(user.id)
+
+    file = open("config/usernames.txt", "a")
+    file.write(username+"\n")
+    file.close()
     return user
 
 
-def store_data(owner_, i):
+def store_data(owner_, i, fake_):
+    """Creates Store Data
+    """
     owner = owner_
     name = store_names[i]
-    # store_time = fake_.date_time()
+    store_time = fake_.future_datetime()
 
-    return Store.objects.create(owner=owner, name=name)
+    return Store.objects.create(owner=owner, name=name, open_till=store_time)
 
 
 def item_data(stores: list, item_category: list, fake_):
+    """Creates item instances using stores and item_category in relation
+    """
     for index, store in enumerate(stores):
         Items.objects.create(store=store, name=item_list[index],
                              code=fake_.random_number(digits=8),

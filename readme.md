@@ -16,7 +16,8 @@
 - **Creating fake Data**
 
   - `python manage.py main_app_data` This will create five subsequent rows in every Table
-  - Superuser credentials, after running above command: ****username: admin, password: admin@123****
+  - Superuser credentials, after running above command: \***\*username: admin, password: admin@123\*\***
+  - Passwords for all other accounts: **User@123**
 
 - **Running the Django server**
 

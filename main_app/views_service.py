@@ -30,6 +30,8 @@ class TransferBillService:
 
                 # if cart is empty then delete the transaction
                 if bool(new_cart) == False:
+                    # increasing item's quantity availability
+                    Items.increase_quantity(instance=item_instance)
                     tb_instance.delete()
                     return 'Transaction Deleted'
 

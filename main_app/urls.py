@@ -1,14 +1,16 @@
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework.authtoken import views
 
 from .views import StoreView, ItemView, TransactionBillView, AvgSalesDate, StoreSalesView
 
 router = routers.DefaultRouter()
 router.register(r'store', StoreView, basename='store')
 router.register(r'item', ItemView, basename='item')
-# router.register(r'transaction', TransactionBillView, basename='transaction')
 
 urlpatterns = [
+    path('api-token-auth/', views.obtain_auth_token, name='api-token-auth'),
+
     path('', include(router.urls)),
 
     path('store-sales-details/',
@@ -21,6 +23,6 @@ urlpatterns = [
     path('place-order/<uuid:transaction_id>/',
          TransactionBillView.as_view({'patch': 'place_order'})),
 
-    path('sales-by-date/', AvgSalesDate.as_view())
+    #     path('sales-by-date/', AvgSalesDate.as_view())
 
 ]
