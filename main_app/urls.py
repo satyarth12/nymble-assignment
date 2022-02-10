@@ -23,6 +23,6 @@ urlpatterns = [
     path('place-order/<uuid:transaction_id>/',
          TransactionBillView.as_view({'patch': 'place_order'})),
 
-    #     path('sales-by-date/', AvgSalesDate.as_view())
+    # TODO: # path('sales-by-date/', AvgSalesDate.as_view())
 
 ]

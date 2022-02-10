@@ -124,5 +124,3 @@ class TransactionBillSerializer(serializers.ModelSerializer):
 
     def get_total_items(self, obj):
         return len(obj.cart)
-
-    #     # print(items[0].transaction_items.all())

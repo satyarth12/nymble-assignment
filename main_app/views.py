@@ -33,20 +33,21 @@ class StoreSalesView(generics.GenericAPIView):
         return Response("You have no store registered with you. Create one please", status=status.HTTP_404_NOT_FOUND)
 
 
-class AvgSalesDate(generics.GenericAPIView):
-    serializer_class = SalesSerializer
+# TODO:
+# class AvgSalesDate(generics.GenericAPIView):
+#     serializer_class = SalesSerializer
 
-    def get(self, request):
-        store = request.user.store_owner
-        print(store)
-        from_date = request.data.get("from_date", None)
-        to_date = request.data.get("to_date", None)
+#     def get(self, request):
+#         store = request.user.store_owner
+#         print(store)
+#         from_date = request.data.get("from_date", None)
+#         to_date = request.data.get("to_date", None)
 
-        store_transactions = TransactionBill.objects.select_related(
-            "store").filter(store=store, placed_timestamp__date__range=[from_date, to_date])
+#         store_transactions = TransactionBill.objects.select_related(
+#             "store").filter(store=store, placed_timestamp__date__range=[from_date, to_date])
 
-        print(store_transactions)
-        return Response(self.serializer_class(store_transactions.user, many=True).data)
+#         print(store_transactions)
+#         return Response(self.serializer_class(store_transactions.user, many=True).data)
 
 
 class StoreView(viewsets.ModelViewSet):
